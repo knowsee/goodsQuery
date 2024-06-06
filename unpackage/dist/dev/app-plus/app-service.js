@@ -32,6 +32,9 @@ if (uni.restoreGlobal) {
 (function(vue) {
   "use strict";
   var _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
+  function requireNativePlugin(name) {
+    return weex.requireModule(name);
+  }
   function formatAppLog(type, filename, ...args) {
     if (uni.__log__) {
       uni.__log__(type, filename, ...args);
@@ -2011,6 +2014,21 @@ if (uni.restoreGlobal) {
     );
   }
   const __easycom_4$1 = /* @__PURE__ */ _export_sfc(_sfc_main$c, [["render", _sfc_render$b], ["__scopeId", "data-v-fb64a415"], ["__file", "/Users/chengyi/Documents/HBuilderProjects/goodsQuery/uni_modules/uv-grid/components/uv-grid/uv-grid.vue"]]);
+  function qrScan(func2, error2) {
+    const scanner = requireNativePlugin("Ba-Scanner");
+    scanner.onScan({
+      isContinuous: false,
+      barcodeFormats: ["QR Code", "Code 128", "EAN-8", "EAN-13"],
+      scanTimeSpace: 2e3,
+      isShowVibrate: true,
+      isShowBeep: false,
+      isShowToast: false
+    }, (ret) => {
+      if (ret.result) {
+        func2(ret.result);
+      }
+    });
+  }
   const _sfc_main$b = {
     data() {
       return {
@@ -2029,14 +2047,14 @@ if (uni.restoreGlobal) {
     onLoad() {
     },
     methods: {
-      search(value) {
+      search(value, type) {
         formatAppLog("log", "at pages/index/index.vue:40", "value", value);
         let params = {
           page: 1,
           limit: 100,
-          ch_name: value,
+          ch_name: type == void 0 ? value : "",
           en_name: "",
-          gtin: ""
+          gtin: type == "gtin" ? value : ""
         };
         uni.$uv.http.get("commodity/v1/likes/goods", { params, custom: { loading: true } }).then((res) => {
           if (res.list.length > 0) {
@@ -2046,11 +2064,21 @@ if (uni.restoreGlobal) {
             formatAppLog("log", "at pages/index/index.vue:53", res.list);
             uni.$emit("searchData", { data: res.list });
           } else {
-            formatAppLog("log", "at pages/index/index.vue:56", "fail");
+            uni.$uv.toast("没有相关结果");
           }
+        }).catch((error2, type2) => {
+          formatAppLog("log", "at pages/index/index.vue:59", error2);
+          if (error2 == "Goods not found") {
+            error2 = "没有相关结果";
+          }
+          uni.$uv.toast(error2);
         });
       },
       barCode(value) {
+        let that = this;
+        qrScan(function(result) {
+          that.search(result, "gtin");
+        });
       }
     }
   };
@@ -4192,25 +4220,24 @@ if (uni.restoreGlobal) {
       uni.$uv.http.interceptors.response.use((response) => {
         var _a;
         const custom = (_a = response.config) == null ? void 0 : _a.custom;
-        formatAppLog("log", "at App.vue:26", custom);
         if (custom == null ? void 0 : custom.loading) {
           uni.hideLoading();
         }
-        formatAppLog("log", "at App.vue:30", "response.data", response.data.data);
         if (response.data.code !== 200) {
           return Promise.reject(response.data.msg, "msg");
         }
-        return response.data.data;
+        formatAppLog("log", "at App.vue:32", response.data);
+        return response.data.data || null;
       }, (response) => {
         return Promise.reject(response, "error");
       });
-      formatAppLog("log", "at App.vue:40", "App Launch");
+      formatAppLog("log", "at App.vue:38", "App Launch");
     },
     onShow: function() {
-      formatAppLog("log", "at App.vue:43", "App Show");
+      formatAppLog("log", "at App.vue:41", "App Show");
     },
     onHide: function() {
-      formatAppLog("log", "at App.vue:46", "App Hide");
+      formatAppLog("log", "at App.vue:44", "App Hide");
     }
   };
   const App = /* @__PURE__ */ _export_sfc(_sfc_main, [["__file", "/Users/chengyi/Documents/HBuilderProjects/goodsQuery/App.vue"]]);

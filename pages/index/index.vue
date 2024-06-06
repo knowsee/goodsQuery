@@ -36,14 +36,14 @@
 
 		},
 		methods: {
-			search(value) {
+			search(value, type) {
 				console.log('value', value)
 				let params = {
 					page: 1,
 					limit: 100,
-					ch_name:value,
+					ch_name:type == undefined ? value : '',
 					en_name:'',
-					gtin:''
+					gtin:type == 'gtin' ? value : ''
 				}
 				uni.$uv.http.get('commodity/v1/likes/goods', {params: params, custom: {loading: true}}).then(res => {
 					if(res.list.length > 0) {
@@ -53,12 +53,21 @@
 						console.log(res.list)
 						uni.$emit('searchData',{data: res.list});
 					} else {
-						console.log('fail')
+						uni.$uv.toast('没有相关结果')
 					}
+				}).catch((error,type) => {
+					console.log(error);
+					if(error == 'Goods not found') {
+						error = '没有相关结果';
+					}
+					uni.$uv.toast(error)
 				})
 			},
 			barCode(value) {
-				
+				let that = this;
+				util.qrScan(function(result) {
+					that.search(result, 'gtin')
+				})
 			}
 		}
 	}

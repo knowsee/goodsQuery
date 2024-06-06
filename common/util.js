@@ -1,17 +1,20 @@
 function qrScan(func, error) {
-	const hwscan = uni.requireNativePlugin('LY-HWScan');
+	const scanner = uni.requireNativePlugin('Ba-Scanner')
 	var scanOption = {
 		scanMode: 'defaultMode',
 		scanType: ["QR", "EAN-13", "EAN-8", "Code128"],
 		scanResultImage: false
 	}
-	hwscan.hwScan({
-		scanOptions: scanOption
-	}, (res) => {
-		if (res.result !== undefined) {
-			func(res.result);
-		} else {
-			error();
+	scanner.onScan({
+		isContinuous: false,
+		barcodeFormats: ["QR Code", "Code 128", "EAN-8", "EAN-13"],
+		scanTimeSpace: 2000,
+		isShowVibrate: true,
+		isShowBeep: false,
+		isShowToast: false,
+	}, (ret) => {
+		if (ret.result) {
+			func(ret.result)
 		}
 	});
 }

@@ -23,16 +23,14 @@
 			})
 			uni.$uv.http.interceptors.response.use((response) => {
 				const custom = response.config?.custom;
-				console.log(custom);
 				if (custom?.loading) {
 					uni.hideLoading()
 				}
-				console.log('response.data', response.data.data)
-				
 				if (response.data.code !== 200) {
 					return Promise.reject(response.data.msg, 'msg');
 				}
-				return response.data.data
+				console.log(response.data);
+				return response.data.data || null
 			}, (response) => {
 				return Promise.reject(response, 'error')
 			})
