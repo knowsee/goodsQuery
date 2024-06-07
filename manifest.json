@@ -44,7 +44,7 @@
                 ],
                 "abiFilters" : [ "arm64-v8a" ],
                 "packagename" : "com.knowsee.pricescheck",
-                "minSdkVersion" : 24
+                "minSdkVersion" : 31
             },
             /* ios打包配置 */
             "ios" : {
