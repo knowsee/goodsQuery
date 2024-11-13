@@ -12,6 +12,27 @@
 			{
 				"navigationBarTitleText" : "Search Result"
 			}
+		},
+		{
+			"path" : "pages/manager/brand/brand",
+			"style" : 
+			{
+				"navigationBarTitleText" : "Brand Manager"
+			}
+		},
+		{
+			"path" : "pages/manager/category/category",
+			"style" : 
+			{
+				"navigationBarTitleText" : "Category Manager"
+			}
+		},
+		{
+			"path" : "pages/manager/goods/goods",
+			"style" : 
+			{
+				"navigationBarTitleText" : "Goods Manager"
+			}
 		}
 	],
 	"globalStyle": {

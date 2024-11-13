@@ -1,6 +1,6 @@
 <template>
 	<view style="margin: 10px">
-		<uv-search inputAlign="center" height="40" actionText="扫一扫" @search="search" @custom="barCode"></uv-search>
+		<uv-search inputAlign="center" height="40" actionText="QR SCAN" @search="search" @custom="barCode"></uv-search>
 	</view>
 
 	<uv-line color="#2979ff"></uv-line>
@@ -23,15 +23,29 @@
 				<!-- 为了磨平部分平台的BUG，必须套一层view -->
 				<view>
 					<view v-for="(item, index) in list1" :key="item.id" class="waterfall-item">
+						<view v-if="item.images" class="waterfall-item__image" :style="[imageStyle(item)]">
+							<uv-image :src="item.images" mode="aspectFill" width="180"></uv-image>
+						</view>
 						<view class="waterfall-item__ft">
-							<view class="waterfall-item__ft__title">
-								<text class="value">{{ item.name }}</text>
+							<view @click="goGoodsManger(item.gtin)" class="waterfall-item__ft__title">
+								<text class="value">{{ item.name_chi }}</text>
 							</view>
-							<view class="waterfall-item__ft__desc uv-line-2">
-								<text class="value">{{ item.english }}</text>
+							<view @click="goGoodsManger(item.gtin)" class="waterfall-item__ft__desc uv-line-2">
+								<text class="value">{{ item.name_en }}</text>
 							</view>
-							<view style="display: inline-block;margin-top:3px;">
-								<uv-tags :text=" item.brand?.name "size="mini"></uv-tags>
+							<view style="margin-top:3px;">
+								<uv-row justify="space-between" gutter="10">
+									<uv-col span="6">
+										<view style="display: inline-block;">
+											<uv-tags :text="item.brand?.name"size="mini"></uv-tags>
+										</view>
+									</uv-col>
+									<uv-col span="5">
+										<view style="display: inline-block;">
+											<uv-tags :text="item.specs"size="mini"></uv-tags>
+										</view>
+									</uv-col>
+								</uv-row>
 							</view>
 						</view>
 					</view>
@@ -41,15 +55,29 @@
 				<!-- 为了磨平部分平台的BUG，必须套一层view -->
 				<view>
 					<view v-for="(item, index) in list2" :key="item.id" class="waterfall-item">
+						<view v-if="item.images" class="waterfall-item__image" :style="[imageStyle(item)]">
+							<uv-image :src="item.images" mode="aspectFill" width="180"></uv-image>
+						</view>
 						<view class="waterfall-item__ft">
-							<view class="waterfall-item__ft__title">
-								<text class="value">{{ item.name }}</text>
+							<view @click="goGoodsManger(item.gtin)" class="waterfall-item__ft__title">
+								<text class="value">{{ item.name_chi }}</text>
 							</view>
-							<view class="waterfall-item__ft__desc uv-line-2">
-								<text class="value">{{ item.english }}</text>
+							<view @click="goGoodsManger(item.gtin)" class="waterfall-item__ft__desc uv-line-2">
+								<text class="value">{{ item.name_en }}</text>
 							</view>
-							<view style="display: inline-block;margin-top:3px;">
-								<uv-tags :text=" item.brand?.name "size="mini"></uv-tags>
+							<view style="margin-top:3px;">
+								<uv-row justify="space-between" gutter="10">
+									<uv-col span="6">
+										<view style="display: inline-block;">
+											<uv-tags :text="item.brand?.name"size="mini"></uv-tags>
+										</view>
+									</uv-col>
+									<uv-col span="5">
+										<view style="display: inline-block;">
+											<uv-tags :text="item.specs"size="mini"></uv-tags>
+										</view>
+									</uv-col>
+								</uv-row>
 							</view>
 						</view>
 					</view>
@@ -57,6 +85,8 @@
 			</template>
 		</uv-waterfall>
 		<uv-load-more :status="loadStatus"></uv-load-more>
+		<uv-toast ref="toast"></uv-toast>
+		
 	</view>
 </template>
 
@@ -87,7 +117,7 @@ export default {
 	},
 	async onLoad() {
 		let config = uni.getStorageSync('configApp');
-		if (config) {
+		if (config && typeof(config) == 'object' && config.cate[0] !== undefined) {
 			(config.cate).forEach(element => {
 				this.cateList.push({
 					name: element.name,
@@ -97,7 +127,36 @@ export default {
 		}
 		await this.indexGoodsList();
 	},
+	computed: {
+		imageStyle(item) {
+			return item => {
+				const v = uni.upx2px(750) - this.leftGap - this.rightGap - this.columnGap;
+				const w = v/2;
+				const rate = w / item.w;
+				const h = rate* item.h;
+				return {
+					width: w + 'px',
+					height: h + 'px'
+				}
+			}
+		}
+	},
 	methods: {
+		toast(title, type, url) {
+			if(type == undefined) {
+				type = 'default';
+			}
+			this.$refs.toast.show({
+				type: type,
+				title: title,
+				message: title,
+				complete() {
+					url !== undefined && uni.navigateTo({
+						url: url
+					})
+				}
+			})
+		},
 		async indexGoodsList() {
 			let that = this;
 			let res = await uni.$uv.http.get('commodity/app/goods/list', { params: { page: this.listPage, limit: 25 }, custom: { loading: true } });
@@ -123,9 +182,9 @@ export default {
 						url: '/pages/list/result'
 					});
 					console.log(res.list)
-					uni.$emit('searchData', { data: res.list });
+					uni.$emit('searchData', { data: res.list, type: 'cate' });
 				} else {
-					uni.$uv.toast('没有相关结果')
+					this.toast('没有相关结果')
 				}
 			})
 		},
@@ -143,21 +202,31 @@ export default {
 					uni.navigateTo({
 						url: '/pages/list/result'
 					});
-					uni.$emit('searchData', { data: res.list });
+					uni.$emit('searchData', { data: params, type: 'load' });
 				} else {
-					uni.$uv.toast('没有相关结果')
+					this.toast('没有相关结果')
 				}
-			}).catch((error, type) => {
+			}).catch((error, typeError) => {
+				console.log('error', error);
 				if (error == 'Goods not found') {
 					error = '没有相关结果';
 				}
-				uni.$uv.toast(error)
+				if(type == 'gtin') {
+					this.toast(error, 'default', '/pages/manager/goods/goods?action=create&gtin='+value)
+				} else {
+					this.toast(error)
+				}
 			})
 		},
 		barCode(value) {
 			let that = this;
 			util.qrScan(function (result) {
 				that.search(result, 'gtin')
+			})
+		},
+		goGoodsManger(gtin) {
+			uni.navigateTo({
+				url: '/pages/manager/goods/goods?gtin='+gtin
 			})
 		}
 	}
@@ -176,7 +245,7 @@ $show-lines: 1;
 }
 
 .waterfall-item__ft {
-	padding: 20rpx;
+	padding: 10rpx;
 	background: #fff;
 
 	&__title {
