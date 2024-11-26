@@ -212,7 +212,12 @@ export default {
 					error = '没有相关结果';
 				}
 				if(type == 'gtin') {
-					this.toast(error, 'default', '/pages/manager/goods/goods?action=create&gtin='+value)
+					this.toast('page', getApp().globalData.setting.goodsInsert);
+					if(getApp().globalData.setting.goodsInsert == 'simple') {
+						this.toast(error, 'default', '/pages/manager/goods/simple?gtin='+value);
+					} else {
+						this.toast(error, 'default', '/pages/manager/goods/goods?action=create&gtin='+value);
+					}
 				} else {
 					this.toast(error)
 				}
@@ -221,7 +226,20 @@ export default {
 		barCode(value) {
 			let that = this;
 			util.qrScan(function (result) {
-				that.search(result, 'gtin')
+				if(result == 'goods_simple') {
+					that.toast('change to simple');
+					getApp().globalData.setting.goodsInsert = 'simple';
+					uni.setStorageSync('setting', getApp().globalData.setting);
+				}
+				if(result == 'goods_default') {
+					that.toast('change to default');
+					getApp().globalData.setting.goodsInsert = 'default';
+					uni.setStorageSync('setting', getApp().globalData.setting);
+				}
+				if(result !== 'goods_default' && result !== 'goods_simple') {
+					that.search(result, 'gtin');
+				}
+				
 			})
 		},
 		goGoodsManger(gtin) {

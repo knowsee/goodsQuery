@@ -33,6 +33,13 @@
 			{
 				"navigationBarTitleText" : "Goods Manager"
 			}
+		},
+		{
+			"path" : "pages/manager/goods/simple",
+			"style" : 
+			{
+				"navigationBarTitleText" : "Goods Simple Manager"
+			}
 		}
 	],
 	"globalStyle": {

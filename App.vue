@@ -1,5 +1,8 @@
 <script>
 	export default {
+		globalData: {
+			setting: {}
+		},
 		onLaunch: async function() {
 			uni.$uv.http.setConfig((config) => {
 				/* config 为默认全局配置*/
@@ -39,6 +42,15 @@
 				cache.shop = res
 			});
 			uni.setStorageSync('configApp', cache);
+			
+			this.globalData.setting = uni.getStorageSync('setting');
+			if(this.globalData.setting == null || this.globalData.setting == false) {
+				uni.setStorageSync('setting', {
+					goodsInsert: 'default'
+				});
+			}
+			
+			
 			let system = uni.getSystemInfoSync();
 			this.globalData.autoWidthCol = Number(system.screenWidth/400).toFixed(0);
 			this.globalData.moduleType = system.model;

@@ -1,28 +1,5 @@
 <template>
 	<view class="paddingView">
-		<view style="margin-bottom:10px" v-if="formDataModel.id > 0">
-			<uv-text type="primary" :text="`${formDataModel.gtin} Prices Manger`" size="18"></uv-text>
-			<uv-form labelPosition="left" :model="pricesDataModel" ref="prices" labelWidth="120">
-				<uv-form-item label="價格" borderBottom>
-					<uv-input v-model="pricesDataModel.prices" clearable type="text" border="none">
-					</uv-input>
-				</uv-form-item>
-				<uv-form-item label="sku" borderBottom>
-					<uv-input v-model="pricesDataModel.sku" clearable type="digit" border="none">
-					</uv-input>
-				</uv-form-item>
-				<uv-form-item label="商場" borderBottom @click="showShopSelect">
-					<uv-input v-model="pricesDataModel.shop_name" disabled disabledColor="#ffffff" placeholder="請選擇商場"
-						border="none">
-					</uv-input>
-					<template v-slot:right>
-						<uv-icon name="arrow-right"></uv-icon>
-					</template>
-				</uv-form-item>
-				<uv-button type="primary" text="提交" customStyle="margin-top: 10px" @click="submitPrices"></uv-button>
-			</uv-form>
-		</view>
-
 		<uv-text type="primary" :text="action" size="18"></uv-text>
 		<uv-form labelPosition="left" :model="formDataModel" ref="form" labelWidth="120">
 			<uv-form-item label="圖片" borderBottom>
@@ -30,22 +7,6 @@
 			</uv-form-item>
 			<uv-form-item label="條碼" prop="formDataModel.gtin" borderBottom>
 				<uv-input v-model="formDataModel.gtin" border="none">
-				</uv-input>
-			</uv-form-item>
-			<uv-form-item label="商品名稱" prop="formDataModel.name" borderBottom>
-				<uv-input v-model="formDataModel.name" border="none">
-				</uv-input>
-			</uv-form-item>
-			<uv-form-item label="英文名稱" prop="formDataModel.name_en" borderBottom>
-				<uv-input v-model="formDataModel.name_en" border="none">
-				</uv-input>
-			</uv-form-item>
-			<uv-form-item label="簡介" prop="formDataModel.desc" borderBottom>
-				<uv-input v-model="formDataModel.desc" border="none">
-				</uv-input>
-			</uv-form-item>
-			<uv-form-item label="英文簡介" prop="formDataModel.desc_en" borderBottom>
-				<uv-input v-model="formDataModel.desc_en" border="none">
 				</uv-input>
 			</uv-form-item>
 			<uv-form-item label="規格(容量/克數等)" prop="formDataModel.specs" borderBottom>
@@ -68,8 +29,16 @@
 					<uv-icon name="arrow-right"></uv-icon>
 				</template>
 			</uv-form-item>
-			<uv-form-item label="產地" prop="formDataModel.country" borderBottom @click="showCountrySelect">
-				<uv-input v-model="formDataModel.country" disabled disabledColor="#ffffff" placeholder="請選擇產地"
+			<uv-form-item label="價格" borderBottom>
+				<uv-input v-model="pricesDataModel.prices" clearable type="text" border="none">
+				</uv-input>
+			</uv-form-item>
+			<uv-form-item label="sku" borderBottom>
+				<uv-input v-model="pricesDataModel.sku" clearable type="digit" border="none">
+				</uv-input>
+			</uv-form-item>
+			<uv-form-item label="商場" borderBottom @click="showShopSelect">
+				<uv-input v-model="pricesDataModel.shop_name" disabled disabledColor="#ffffff" placeholder="請選擇商場"
 					border="none">
 				</uv-input>
 				<template v-slot:right>
@@ -100,7 +69,7 @@
 					name_en: null,
 					desc: null,
 					desc_en: null,
-					specs: null,
+					specs: '1pcs',
 					brand: null,
 					brandName: null,
 					country: null,
@@ -330,8 +299,16 @@
 					}).then(res => {
 						this.formDataModel.id = res.id;
 						this.toast('創建成功', 'success');
+						uni.$uv.http.put('commodity/v1/goods/price/' + this.formDataModel.id, this.pricesDataModel, {
+							custom: {
+								loading: true
+							}
+						}).then(res => {
+							this.toast('價格已更新', 'success');
+						}).catch((err, type) => {
+							this.toast(err, 'error');
+						})
 					}).catch((err, type) => {
-						console.log(err)
 						this.toast(err, 'error');
 					})
 				}
