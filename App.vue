@@ -46,11 +46,9 @@
 			this.globalData.setting = uni.getStorageSync('setting');
 			if(this.globalData.setting == null || this.globalData.setting == false) {
 				uni.setStorageSync('setting', {
-					goodsInsert: 'default'
+					goodsInsert: 'simple'
 				});
 			}
-			
-			
 			let system = uni.getSystemInfoSync();
 			this.globalData.autoWidthCol = Number(system.screenWidth/400).toFixed(0);
 			this.globalData.moduleType = system.model;

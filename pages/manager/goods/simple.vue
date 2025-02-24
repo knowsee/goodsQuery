@@ -5,6 +5,9 @@
 			<uv-form-item label="圖片" borderBottom>
 				<uv-upload :fileList="fileList" @afterRead="afterReadUpload" :previewFullImage="true"></uv-upload>
 			</uv-form-item>
+			<uv-form-item label="柜面圖片" borderBottom>
+				<uv-upload :fileList="storePicList" @afterRead="afterStoreReadUpload" :previewFullImage="true"></uv-upload>
+			</uv-form-item>
 			<uv-form-item label="條碼" prop="formDataModel.gtin" borderBottom>
 				<uv-input v-model="formDataModel.gtin" border="none">
 				</uv-input>
@@ -60,6 +63,7 @@
 			return {
 				action: 'CREATE GOODS INFO',
 				fileList: [],
+				storePicList: [],
 				formDataModel: {
 					id: null,
 					gtin: null,
@@ -73,7 +77,8 @@
 					brand: null,
 					brandName: null,
 					country: null,
-					files_id: null
+					files_id: null,
+					store_files_id: null
 				},
 				pricesDataModel: {
 					shop_id: 0,
@@ -151,6 +156,15 @@
 								message: ''
 							});
 						}
+						this.storePicList = [];
+						if (res.store_files_id !== null) {
+							console.log('res.files_id', res.store_files_id);
+							this.fileList.push({
+								url: `${res.store_image}?timestamp=${uni.$uv.guid(20)}`,
+								status: 'success',
+								message: ''
+							});
+						}
 						this.formDataModel.brand = brand?.id;
 						this.formDataModel.brandName = brand?.name;
 						this.$refs.countrySelect.setIndexs([this.country.findIndex(item => item.name == this
@@ -202,14 +216,19 @@
 			uni.$off('updateBrand')
 		},
 		methods: {
-			uploadFilePromise(url) {
-				let files_id = this.formDataModel.files_id || 0;
+			uploadFilePromise(url, type) {
+				let files_id = null;
+				if(type == 'image') {
+					files_id = this.formDataModel.files_id || 0;
+				} else {
+					files_id = this.formDataModel.store_files_id || 0;
+				}
 				let that = this;
 				return new Promise((resolve, reject) => {
 					let a = uni.uploadFile({
 						url: 'https://upc-api.ckc.im/commodity/app/files', // 僅為示例，非真實的接口地址
 						filePath: url,
-						name: 'images',
+						name: type,
 						formData: {
 							files_id
 						},
@@ -220,7 +239,7 @@
 				})
 			},
 			async afterReadUpload(event) {
-				this[`fileList`] = [];
+				//this[`fileList`] = [];
 				let lists = [].concat(event.file)
 				let fileListLen = this[`fileList`].length
 				lists.map((item) => {
@@ -231,10 +250,34 @@
 					})
 				})
 				for (let i = 0; i < lists.length; i++) {
-					const result = await this.uploadFilePromise(lists[i].url)
+					const result = await this.uploadFilePromise(lists[i].url, 'image')
 					let item = this[`fileList`][fileListLen]
 					this.formDataModel.files_id = result.data.id;
 					this[`fileList`].splice(fileListLen, 1, Object.assign(item, {
+						status: 'success',
+						message: '',
+						url: `${result.data.files}?timestamp=${uni.$uv.guid(20)}`
+					}))
+					console.log('this.formDataModel-file', this.formDataModel)
+					fileListLen++
+				}
+			},
+			async afterStoreReadUpload(event) {
+				//this[`fileList`] = [];
+				let lists = [].concat(event.file)
+				let fileListLen = this[`storePicList`].length
+				lists.map((item) => {
+					this[`storePicList`].push({
+						...item,
+						status: 'uploading',
+						message: '上傳中'
+					})
+				})
+				for (let i = 0; i < lists.length; i++) {
+					const result = await this.uploadFilePromise(lists[i].url, 'store')
+					let item = this[`storePicList`][fileListLen]
+					this.formDataModel.store_files_id = result.data.id;
+					this[`storePicList`].splice(fileListLen, 1, Object.assign(item, {
 						status: 'success',
 						message: '',
 						url: `${result.data.files}?timestamp=${uni.$uv.guid(20)}`

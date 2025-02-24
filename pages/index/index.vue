@@ -229,13 +229,12 @@ export default {
 				if(result == 'goods_simple') {
 					that.toast('change to simple');
 					getApp().globalData.setting.goodsInsert = 'simple';
-					uni.setStorageSync('setting', getApp().globalData.setting);
 				}
 				if(result == 'goods_default') {
 					that.toast('change to default');
 					getApp().globalData.setting.goodsInsert = 'default';
-					uni.setStorageSync('setting', getApp().globalData.setting);
 				}
+				uni.setStorageSync('setting', getApp().globalData.setting);
 				if(result !== 'goods_default' && result !== 'goods_simple') {
 					that.search(result, 'gtin');
 				}
