@@ -4,13 +4,18 @@
 			<uv-list-item v-for="item in data">
 				<view style="border: 1px #2979ff solid; margin: 10px; padding: 5px;">
 					<view>
-						<uv-row customStyle="{margin:0}">
-							<uv-col span="4">
-								<uv-image :src="item.images" mode="aspectFill" width="100" height="100"></uv-image>
+						<uv-row :customStyle="{margin:'10px'}">
+							<uv-col span="6">
+								<uv-image :src="item.images" mode="aspectFill" width="150" height="150" :customStyle="{marginRight:'10px'}"></uv-image>
 							</uv-col>
-							<uv-col span="8">
+							<uv-col span="6">
+								<uv-image :src="item.store_image" mode="aspectFill" width="150" height="150"></uv-image>
+							</uv-col>
+						</uv-row>
+						<uv-row :customStyle="{margin:0}">
+							<uv-col span="12">
 								<view @click="goGoodsManger(item.gtin)">
-									<uv-row customStyle="{margin:0}">
+									<uv-row :customStyle="{margin:'10px'}">
 										<uv-col span="6">
 											<view>{{item.name_en}}</view>
 											<view>{{item.name_chi}}</view>
