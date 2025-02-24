@@ -24,7 +24,7 @@
 				<view>
 					<view v-for="(item, index) in list1" :key="item.id" class="waterfall-item">
 						<view v-if="item.images" class="waterfall-item__image" :style="[imageStyle(item)]">
-							<uv-image :src="item.images" mode="aspectFill" width="180"></uv-image>
+							<uv-image :src="item.images" mode="aspectFill" width="180" @click="showImage(item.images)"></uv-image>
 						</view>
 						<view class="waterfall-item__ft">
 							<view @click="goGoodsManger(item.gtin)" class="waterfall-item__ft__title">
@@ -56,7 +56,7 @@
 				<view>
 					<view v-for="(item, index) in list2" :key="item.id" class="waterfall-item">
 						<view v-if="item.images" class="waterfall-item__image" :style="[imageStyle(item)]">
-							<uv-image :src="item.images" mode="aspectFill" width="180"></uv-image>
+							<uv-image :src="item.images" mode="aspectFill" width="180" @click="showImage(item.images)"></uv-image>
 						</view>
 						<view class="waterfall-item__ft">
 							<view @click="goGoodsManger(item.gtin)" class="waterfall-item__ft__title">
@@ -245,6 +245,11 @@ export default {
 			uni.navigateTo({
 				url: '/pages/manager/goods/goods?gtin='+gtin
 			})
+		},
+		showImage(image) {
+			uni.previewImage({
+				urls: [image]
+			});
 		}
 	}
 }

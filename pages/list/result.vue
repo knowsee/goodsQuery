@@ -6,10 +6,10 @@
 					<view>
 						<uv-row :customStyle="{margin:'10px'}">
 							<uv-col span="6">
-								<uv-image :src="item.images" mode="aspectFill" width="150" height="150" :customStyle="{marginRight:'10px'}"></uv-image>
+								<uv-image :src="item.images" mode="aspectFill" width="150" height="150" :customStyle="{marginRight:'10px'}" @click="showImage(item.images)"></uv-image>
 							</uv-col>
 							<uv-col span="6">
-								<uv-image :src="item.store_image" mode="aspectFill" width="150" height="150"></uv-image>
+								<uv-image :src="item.store_image" mode="aspectFill" width="150" height="150" @click="showImage(item.images)"></uv-image>
 							</uv-col>
 						</uv-row>
 						<uv-row :customStyle="{margin:0}">
@@ -82,6 +82,11 @@
 				uni.$uv.http.get('commodity/v1/goods/price/'+gtin, { params: {}, custom: { loading: true } }).then(res => {
 					that.prices = res.prices;
 					that.$refs.popup.open();
+				});
+			},
+			showImage(image) {
+				uni.previewImage({
+					urls: [image]
 				});
 			}
 		}
